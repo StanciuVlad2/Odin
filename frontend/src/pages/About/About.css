@@ -1,0 +1,61 @@
+/* About Page */
+
+.about-section h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  margin-top: 2rem;
+}
+
+.about-text h2 {
+  color: #8bc395;
+  margin: 2rem 0 1rem 0;
+}
+
+.about-text p {
+  line-height: 1.8;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.stat {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f9f5f0 0%, #f0f8f2 100%);
+  border-radius: 15px;
+  border: 2px solid #e8f5ea;
+}
+
+.stat h3 {
+  font-size: 2.5rem;
+  color: #e08ea8;
+  margin-bottom: 0.5rem;
+}
+
+.stat p {
+  color: #6a8a75;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+
+  .about-stats {
+    grid-template-columns: 1fr;
+  }
+}

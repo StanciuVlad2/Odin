@@ -1,0 +1,113 @@
+/* Auth Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(45, 95, 63, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: #fdfaf6;
+  padding: 3rem 2rem 2rem 2rem;
+  border-radius: 20px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(139, 195, 149, 0.3);
+}
+
+.close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(139, 195, 149, 0.1);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #3d7050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  z-index: 10;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  background: rgba(224, 142, 168, 0.2);
+  color: #e08ea8;
+  transform: rotate(90deg);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #e8f5ea;
+  background: white;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  color: #3d7050;
+}
+
+.auth-tabs button.active {
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+  border-color: #8bc395;
+}
+
+.auth-form h2 {
+  margin-bottom: 1.5rem;
+  color: #2d5f3f;
+}
+
+.auth-form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 2px solid #e8f5ea;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #8bc395;
+}
+
+.auth-form button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(139, 195, 149, 0.3);
+}
+
+.auth-form button[type="submit"]:hover {
+  background: linear-gradient(135deg, #7db88a 0%, #6fa77b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 195, 149, 0.4);
+}
