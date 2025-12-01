@@ -58,8 +58,8 @@ function AuthModal({ onClose }: AuthModalProps) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal-content">
         <button className="close-btn" onClick={onClose}>×</button>
         
         <div className="auth-tabs">
