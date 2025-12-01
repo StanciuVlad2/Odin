@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import './OrderModal.css'
 
 interface OrderModalProps {
@@ -97,10 +98,17 @@ function OrderModal({ orderType, onClose, onOrderPlaced }: OrderModalProps) {
       // TODO: Implement API call to place order
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      alert(`Order placed successfully! ${orderType === 'pickup' ? 'Pickup time: ' + new Date(pickupTime).toLocaleString('ro-RO') : 'Your order will be ready soon!'}`)
+      if (orderType === 'pickup') {
+        toast.success(`Order placed! Pickup at ${new Date(pickupTime).toLocaleString('ro-RO')}`, {
+          duration: 4000,
+        })
+      } else {
+        toast.success('Order placed successfully! Your order will be ready soon!')
+      }
       onOrderPlaced()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to place order')
+      toast.error('Failed to place order. Please try again.')
     } finally {
       setLoading(false)
     }

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
 import AuthModal from '../AuthModal'
 import { apiService } from '../../services/api'
 import type { MeResponse } from '../../services/api'
@@ -26,25 +27,15 @@ function Navigation() {
     }
   }
 
-  const handleTestMe = async () => {
-    try {
-      const data = await apiService.me()
-      console.log('Me Response:', data)
-      alert(JSON.stringify(data, null, 2))
-    } catch (err) {
-      console.error('Error:', err)
-      alert('Error: ' + (err instanceof Error ? err.message : 'Unknown error'))
-    }
-  }
-
   const handleLogout = async () => {
     try {
       await apiService.logout()
       setUserInfo(null)
+      toast.success('Logged out successfully!')
       navigate('/')
-      alert('Logged out successfully!')
     } catch (err) {
       console.error('Logout failed:', err)
+      toast.error('Logout failed. Please try again.')
     }
   }
 

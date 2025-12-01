@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import './AuthModal.css'
 import { apiService } from '../../services/api'
 
@@ -33,16 +34,18 @@ function AuthModal({ onClose }: AuthModalProps) {
         }
         
         await apiService.register({ email, password })
-        alert('Registration successful! Please login.')
+        toast.success('Registration successful! Please login.')
         setAuthMode('login')
         setPassword('')
         setConfirmPassword('')
       } else {
         await apiService.login({ email, password })
-        alert('Login successful!')
+        toast.success('Login successful! Welcome back!')
         onClose()
         // Optionally reload or update app state
-        window.location.reload()
+        setTimeout(() => {
+          window.location.reload()
+        }, 500)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
