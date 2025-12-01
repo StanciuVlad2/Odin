@@ -14,6 +14,7 @@ import Services from './pages/Services'
 import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
 import WorkerDashboard from './pages/WorkerDashboard'
+import VerifyEmail from './pages/VerifyEmail'
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -70,6 +71,7 @@ function App() {
           <Route path="menu" element={<Menu />} />
           <Route path="services" element={<Services />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="verify-email" element={<VerifyEmail />} />
           
           {/* Protected Routes */}
           <Route 

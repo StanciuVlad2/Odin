@@ -34,8 +34,11 @@ function AuthModal({ onClose }: AuthModalProps) {
         }
         
         await apiService.register({ email, password })
-        toast.success('Registration successful! Please login.')
-        setAuthMode('login')
+        toast.success('Registration successful! Please check your email to verify your account.', {
+          duration: 5000,
+        })
+        onClose()
+        setEmail('')
         setPassword('')
         setConfirmPassword('')
       } else {

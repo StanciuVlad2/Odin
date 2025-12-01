@@ -1,0 +1,171 @@
+/* Verify Email Page */
+.verify-email-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdfaf6 0%, #f5f9f6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  padding-top: 80px;
+}
+
+.verify-container {
+  max-width: 500px;
+  width: 100%;
+}
+
+.verify-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  box-shadow: 0 10px 40px rgba(139, 195, 149, 0.2);
+  text-align: center;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verify-card h2 {
+  color: #2d5f3f;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.verify-card p {
+  color: #3d7050;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+/* Loading State */
+.verify-card.loading {
+  border-top: 4px solid #8bc395;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e8f5ea;
+  border-top-color: #8bc395;
+  border-radius: 50%;
+  margin: 0 auto 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Success State */
+.verify-card.success {
+  border-top: 4px solid #8bc395;
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 3rem;
+  font-weight: bold;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-icon {
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+}
+
+/* Error State */
+.verify-card.error {
+  border-top: 4px solid #e08ea8;
+}
+
+.error-icon {
+  background: linear-gradient(135deg, #e08ea8 0%, #d87d9a 100%);
+  color: white;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1.5rem;
+  min-width: 200px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(139, 195, 149, 0.3);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #7db88a 0%, #6fa77b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 195, 149, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #3d7050;
+  border: 2px solid #8bc395;
+}
+
+.btn-secondary:hover {
+  background: #f5f9f6;
+  transform: translateY(-2px);
+}
+
+.redirect-message {
+  color: #6fa77b;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .verify-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .verify-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .icon-circle {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+}
