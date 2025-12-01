@@ -1,0 +1,134 @@
+/* Worker Dashboard */
+.worker-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #2d5f3f 0%, #3d7050 100%);
+  padding-top: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.worker-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.worker-card {
+  background: white;
+  border-radius: 30px;
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.worker-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.worker-card h1 {
+  color: #2d5f3f;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.worker-info {
+  margin-bottom: 2rem;
+}
+
+.welcome-message {
+  color: #3d7050;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.worker-message {
+  background: #f5f9f6;
+  border-left: 4px solid #8bc395;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.worker-message p {
+  color: #3d7050;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.info-note {
+  color: #6fa77b;
+  font-style: italic;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.worker-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #fdfaf6 0%, #f5f9f6 100%);
+  padding: 2rem 1.5rem;
+  border-radius: 15px;
+  border: 2px solid #e8f5ea;
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  border-color: #8bc395;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(139, 195, 149, 0.3);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  color: #2d5f3f;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.feature-card p {
+  color: #6fa77b;
+  font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .worker-card {
+    padding: 2rem;
+  }
+
+  .worker-card h1 {
+    font-size: 2rem;
+  }
+
+  .worker-icon {
+    font-size: 4rem;
+  }
+
+  .worker-features {
+    grid-template-columns: 1fr;
+  }
+}

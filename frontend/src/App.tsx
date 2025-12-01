@@ -3,6 +3,7 @@ import './App.css'
 
 // Components
 import Navigation from './components/Navigation'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Pages
 import Home from './pages/Home'
@@ -10,6 +11,8 @@ import About from './pages/About'
 import Menu from './pages/Menu'
 import Services from './pages/Services'
 import Contact from './pages/Contact'
+import Dashboard from './pages/Dashboard'
+import WorkerDashboard from './pages/WorkerDashboard'
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -39,6 +42,43 @@ function App() {
           <Route path="menu" element={<Menu />} />
           <Route path="services" element={<Services />} />
           <Route path="contact" element={<Contact />} />
+          
+          {/* Protected Routes */}
+          <Route 
+            path="dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_GUEST']}>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="worker-dashboard" 
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_WAITER', 'ROLE_CHEF', 'ROLE_MANAGER', 'ROLE_ADMIN']}>
+                <WorkerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Unauthorized page */}
+          <Route 
+            path="unauthorized" 
+            element={
+              <div style={{ 
+                minHeight: '100vh', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexDirection: 'column',
+                gap: '1rem',
+                color: '#2d5f3f'
+              }}>
+                <h1>🚫 Unauthorized</h1>
+                <p>You don't have permission to access this page.</p>
+              </div>
+            } 
+          />
         </Route>
       </Routes>
     </Router>

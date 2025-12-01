@@ -15,6 +15,12 @@ export interface AuthResponse {
   expiresInSeconds: number;
 }
 
+export interface MeResponse {
+  authenticated: boolean;
+  email: string | null;
+  roles: string[];
+}
+
 class ApiService {
   private getHeaders(includeAuth: boolean = false): HeadersInit {
     const headers: HeadersInit = {
@@ -98,6 +104,19 @@ class ApiService {
 
   getToken(): string | null {
     return localStorage.getItem('authToken');
+  }
+
+  async me(): Promise<MeResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      method: 'GET',
+      headers: this.getHeaders(true),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user info');
+    }
+
+    return await response.json();
   }
 }
 

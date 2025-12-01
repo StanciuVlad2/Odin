@@ -1,0 +1,253 @@
+/* Dashboard Page */
+.dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fdfaf6 0%, #f5f9f6 100%);
+  padding-top: 80px;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  color: #2d5f3f;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-header .subtitle {
+  color: #6fa77b;
+  font-size: 1.1rem;
+}
+
+/* Order Actions */
+.order-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.order-btn {
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.order-now-btn {
+  background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
+  color: white;
+}
+
+.order-now-btn:hover {
+  background: linear-gradient(135deg, #7db88a 0%, #6fa77b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 195, 149, 0.4);
+}
+
+.order-pickup-btn {
+  background: linear-gradient(135deg, #e08ea8 0%, #d87d9a 100%);
+  color: white;
+}
+
+.order-pickup-btn:hover {
+  background: linear-gradient(135deg, #d87d9a 0%, #c96c8a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(224, 142, 168, 0.4);
+}
+
+/* My Orders Section */
+.my-orders {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(139, 195, 149, 0.15);
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.orders-header h2 {
+  color: #2d5f3f;
+  margin: 0;
+}
+
+.filter-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-controls label {
+  color: #3d7050;
+  font-weight: 500;
+}
+
+.status-filter {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e8f5ea;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #2d5f3f;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.status-filter:focus {
+  outline: none;
+  border-color: #8bc395;
+}
+
+/* Orders List */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.order-card {
+  background: #fdfaf6;
+  border: 2px solid #e8f5ea;
+  border-radius: 15px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.order-card:hover {
+  border-color: #8bc395;
+  box-shadow: 0 4px 15px rgba(139, 195, 149, 0.2);
+  transform: translateY(-2px);
+}
+
+.order-card.pending {
+  border-left: 4px solid #f4b942;
+}
+
+.order-card.completed {
+  border-left: 4px solid #8bc395;
+}
+
+.order-card.cancelled {
+  border-left: 4px solid #e08ea8;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #2d5f3f;
+  font-size: 1.1rem;
+}
+
+.order-status {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: rgba(244, 185, 66, 0.2);
+  color: #d89f1c;
+}
+
+.status-completed {
+  background: rgba(139, 195, 149, 0.2);
+  color: #5d9369;
+}
+
+.status-cancelled {
+  background: rgba(224, 142, 168, 0.2);
+  color: #c96c8a;
+}
+
+.order-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.order-item {
+  background: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  color: #3d7050;
+  font-size: 0.9rem;
+  border: 1px solid #e8f5ea;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e8f5ea;
+}
+
+.order-date,
+.pickup-time {
+  color: #6fa77b;
+  font-size: 0.9rem;
+}
+
+.order-total {
+  font-weight: 700;
+  color: #2d5f3f;
+  font-size: 1.2rem;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 3rem;
+  color: #6fa77b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .order-actions {
+    flex-direction: column;
+  }
+
+  .order-btn {
+    width: 100%;
+  }
+
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-controls {
+    width: 100%;
+  }
+
+  .status-filter {
+    flex: 1;
+  }
+}

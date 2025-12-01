@@ -51,6 +51,36 @@
   color: #e08ea8;
 }
 
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.user-email {
+  color: #3d7050;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #e08ea8 0%, #d87d9a 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(224, 142, 168, 0.3);
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #d87d9a 0%, #c96c8a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(224, 142, 168, 0.4);
+}
+
 .account-btn {
   background: linear-gradient(135deg, #8bc395 0%, #7db88a 100%);
   color: white;
