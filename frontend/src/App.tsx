@@ -15,6 +15,8 @@ import Contact from './pages/Contact'
 import Dashboard from './pages/Dashboard'
 import WorkerDashboard from './pages/WorkerDashboard'
 import VerifyEmail from './pages/VerifyEmail'
+import Reservations from './pages/Reservations'
+import TableManagement from './pages/TableManagement'
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -71,6 +73,7 @@ function App() {
           <Route path="menu" element={<Menu />} />
           <Route path="services" element={<Services />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="reservations" element={<Reservations />} />
           <Route path="verify-email" element={<VerifyEmail />} />
           
           {/* Protected Routes */}
@@ -87,6 +90,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['ROLE_WAITER', 'ROLE_CHEF', 'ROLE_MANAGER', 'ROLE_ADMIN']}>
                 <WorkerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="table-management" 
+            element={
+              <ProtectedRoute allowedRoles={['ROLE_MANAGER', 'ROLE_ADMIN']}>
+                <TableManagement />
               </ProtectedRoute>
             } 
           />

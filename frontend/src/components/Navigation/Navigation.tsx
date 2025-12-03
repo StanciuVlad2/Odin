@@ -49,6 +49,12 @@ function Navigation() {
     return hasWorkerRole ? '/worker-dashboard' : '/dashboard'
   }
 
+  const isManager = () => {
+    return userInfo?.roles.some(role => 
+      ['ROLE_MANAGER', 'ROLE_ADMIN'].includes(role)
+    )
+  }
+
   return (
     <>
       <nav className="navbar">
@@ -63,9 +69,13 @@ function Navigation() {
             <li><Link to="/about">About</Link></li>
             <li><Link to="/menu">Menu</Link></li>
             <li><Link to="/services">Services</Link></li>
+            <li><Link to="/reservations">Reservations</Link></li>
             <li><Link to="/contact">Contact</Link></li>
             {userInfo && userInfo.authenticated && (
               <li><Link to={getDashboardPath()}>Dashboard</Link></li>
+            )}
+            {userInfo && userInfo.authenticated && isManager() && (
+              <li><Link to="/table-management">Manage Tables</Link></li>
             )}
           </ul>
           <div className="nav-buttons">
