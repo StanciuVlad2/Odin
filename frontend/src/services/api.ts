@@ -100,15 +100,25 @@ export interface TableAvailability {
 }
 
 class ApiService {
+  private async extractErrorMessage(response: Response): Promise<string> {
+    const text = await response.text();
+    try {
+      const json = JSON.parse(text);
+      return json.message || json.error || text;
+    } catch {
+      return text || "An error occurred";
+    }
+  }
+
   private getHeaders(includeAuth: boolean = false): HeadersInit {
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
 
     if (includeAuth) {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        headers["Authorization"] = `Bearer ${token}`;
       }
     }
 
@@ -117,34 +127,37 @@ class ApiService {
 
   async register(data: RegisterRequest): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Registration failed');
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
     }
   }
 
   async login(data: LoginRequest): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Login failed');
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
     }
 
     const authResponse: AuthResponse = await response.json();
-    
+
     // Store token in localStorage
-    localStorage.setItem('authToken', authResponse.token);
-    localStorage.setItem('tokenExpiry', String(Date.now() + authResponse.expiresInSeconds * 1000));
+    localStorage.setItem("authToken", authResponse.token);
+    localStorage.setItem(
+      "tokenExpiry",
+      String(Date.now() + authResponse.expiresInSeconds * 1000),
+    );
 
     return authResponse;
   }
@@ -152,19 +165,19 @@ class ApiService {
   async logout(): Promise<void> {
     try {
       await fetch(`${API_BASE_URL}/api/auth/logout`, {
-        method: 'POST',
+        method: "POST",
         headers: this.getHeaders(true),
       });
     } finally {
       // Clear token from localStorage regardless of API call success
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('tokenExpiry');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("tokenExpiry");
     }
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('authToken');
-    const expiry = localStorage.getItem('tokenExpiry');
+    const token = localStorage.getItem("authToken");
+    const expiry = localStorage.getItem("tokenExpiry");
 
     if (!token || !expiry) {
       return false;
@@ -172,8 +185,8 @@ class ApiService {
 
     // Check if token is expired
     if (Date.now() > parseInt(expiry)) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('tokenExpiry');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("tokenExpiry");
       return false;
     }
 
@@ -181,17 +194,17 @@ class ApiService {
   }
 
   getToken(): string | null {
-    return localStorage.getItem('authToken');
+    return localStorage.getItem("authToken");
   }
 
   async me(): Promise<MeResponse> {
     const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-      method: 'GET',
+      method: "GET",
       headers: this.getHeaders(true),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch user info');
+      throw new Error("Failed to fetch user info");
     }
 
     return await response.json();
@@ -200,12 +213,12 @@ class ApiService {
   // Tables API
   async getTables(): Promise<TableResponse[]> {
     const response = await fetch(`${API_BASE_URL}/api/tables`, {
-      method: 'GET',
+      method: "GET",
       headers: this.getHeaders(),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch tables');
+      throw new Error("Failed to fetch tables");
     }
 
     return await response.json();
@@ -213,27 +226,30 @@ class ApiService {
 
   async createTable(data: CreateTableRequest): Promise<TableResponse> {
     const response = await fetch(`${API_BASE_URL}/api/tables`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(true),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create table');
+      throw new Error("Failed to create table");
     }
 
     return await response.json();
   }
 
-  async updateTable(id: number, data: UpdateTableRequest): Promise<TableResponse> {
+  async updateTable(
+    id: number,
+    data: UpdateTableRequest,
+  ): Promise<TableResponse> {
     const response = await fetch(`${API_BASE_URL}/api/tables/${id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: this.getHeaders(true),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update table');
+      throw new Error("Failed to update table");
     }
 
     return await response.json();
@@ -241,71 +257,85 @@ class ApiService {
 
   async deleteTable(id: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/tables/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: this.getHeaders(true),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete table');
+      throw new Error("Failed to delete table");
     }
   }
 
   // Reservations API
-  async checkAvailability(date: string, partySize?: number): Promise<AvailabilityResponse> {
+  async checkAvailability(
+    date: string,
+    partySize?: number,
+  ): Promise<AvailabilityResponse> {
     const params = new URLSearchParams({ date });
     if (partySize) {
-      params.append('partySize', partySize.toString());
+      params.append("partySize", partySize.toString());
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/reservations/availability?${params}`, {
-      method: 'GET',
-      headers: this.getHeaders(),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/reservations/availability?${params}`,
+      {
+        method: "GET",
+        headers: this.getHeaders(),
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to check availability');
+      throw new Error("Failed to check availability");
     }
 
     return await response.json();
   }
 
-  async createReservation(data: CreateReservationRequest): Promise<ReservationResponse> {
+  async createReservation(
+    data: CreateReservationRequest,
+  ): Promise<ReservationResponse> {
     const response = await fetch(`${API_BASE_URL}/api/reservations`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(this.isAuthenticated()),
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || 'Failed to create reservation');
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
     }
 
     return await response.json();
   }
 
   async getMyReservations(): Promise<ReservationResponse[]> {
-    const response = await fetch(`${API_BASE_URL}/api/reservations/my-reservations`, {
-      method: 'GET',
-      headers: this.getHeaders(true),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/reservations/my-reservations`,
+      {
+        method: "GET",
+        headers: this.getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch reservations');
+      throw new Error("Failed to fetch reservations");
     }
 
     return await response.json();
   }
 
   async cancelReservation(id: number): Promise<ReservationResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/cancel`, {
-      method: 'PUT',
-      headers: this.getHeaders(true),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/reservations/${id}/cancel`,
+      {
+        method: "PUT",
+        headers: this.getHeaders(true),
+      },
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(errorText || 'Failed to cancel reservation');
+      throw new Error(errorText || "Failed to cancel reservation");
     }
 
     return await response.json();
@@ -313,12 +343,12 @@ class ApiService {
 
   async getAllReservations(): Promise<ReservationResponse[]> {
     const response = await fetch(`${API_BASE_URL}/api/reservations/all`, {
-      method: 'GET',
+      method: "GET",
       headers: this.getHeaders(true),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch all reservations');
+      throw new Error("Failed to fetch all reservations");
     }
 
     return await response.json();
