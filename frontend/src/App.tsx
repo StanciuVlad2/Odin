@@ -17,6 +17,7 @@ import WorkerDashboard from './pages/WorkerDashboard'
 import VerifyEmail from './pages/VerifyEmail'
 import Reservations from './pages/Reservations'
 import TableManagement from './pages/TableManagement'
+import CreateCocktail from './pages/CreateCocktail'
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -74,6 +75,7 @@ function App() {
           <Route path="services" element={<Services />} />
           <Route path="contact" element={<Contact />} />
           <Route path="reservations" element={<Reservations />} />
+          <Route path="create-cocktail" element={<CreateCocktail />} />
           <Route path="verify-email" element={<VerifyEmail />} />
           
           {/* Protected Routes */}

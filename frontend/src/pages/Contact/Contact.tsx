@@ -47,7 +47,7 @@ function Contact() {
               
               <div className="info-item">
                 <h3>✉️ Email</h3>
-                <p>info@odinrestaurant.com</p>
+                <p>odin.dining@gmail.com</p>
               </div>
               
               <div className="info-item">
@@ -67,85 +67,6 @@ function Contact() {
                   <a href="#twitter">Twitter</a>
                 </div>
               </div>
-            </div>
-
-            <div className="contact-form-wrapper">
-              <h2>Make a Reservation</h2>
-              <form className="reservation-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <input
-                      type="date"
-                      name="date"
-                      value={formData.date}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="form-group">
-                    <input
-                      type="time"
-                      name="time"
-                      value={formData.time}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <select
-                    name="guests"
-                    value={formData.guests}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Number of Guests</option>
-                    <option value="1">1 Guest</option>
-                    <option value="2">2 Guests</option>
-                    <option value="3">3 Guests</option>
-                    <option value="4">4 Guests</option>
-                    <option value="5">5 Guests</option>
-                    <option value="6+">6+ Guests</option>
-                  </select>
-                </div>
-                
-                <button type="submit" className="submit-btn">Book Now</button>
-              </form>
             </div>
           </div>
       </Section>
