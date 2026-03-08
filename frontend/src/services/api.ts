@@ -132,6 +132,88 @@ export const ALL_ROLES = [
   'ROLE_ADMIN',
 ] as const;
 
+// ── Stock ────────────────────────────────────────────────────────────────────
+
+export type StockType = 'SOLID' | 'LIQUID' | 'PORTION';
+
+export interface StockItemResponse {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  minimumThreshold: number | null;
+  lowStock: boolean;
+  type: StockType;
+}
+
+export interface StockItemRequest {
+  name: string;
+  quantity: number;
+  unit: string;
+  minimumThreshold?: number;
+  type: StockType;
+}
+
+// ── Menu Items / Recipes ─────────────────────────────────────────────────────
+
+export interface RecipeIngredientDto {
+  ingredientName: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface MenuItemResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string | null;
+  available: boolean;
+  recipe: RecipeIngredientDto[];
+}
+
+export interface MenuItemRequest {
+  name: string;
+  description?: string;
+  price: number;
+  category?: string;
+  available?: boolean;
+  recipe?: RecipeIngredientDto[];
+}
+
+// ── Orders ───────────────────────────────────────────────────────────────────
+
+export interface OrderItemResponse {
+  id: number;
+  menuItemId: string;
+  menuItemName: string;
+  quantity: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface OrderResponse {
+  id: number;
+  tableId: number | null;
+  userId: number | null;
+  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  items: OrderItemResponse[];
+  totalPrice: number;
+}
+
+export interface CreateOrderRequest {
+  tableId?: number;
+  notes?: string;
+  items: { menuItemId: string; quantity: number }[];
+}
+
+export interface UpdateOrderStatusRequest {
+  status: string;
+}
+
 class ApiService {
   private async extractErrorMessage(response: Response): Promise<string> {
     const text = await response.text();
@@ -444,6 +526,174 @@ class ApiService {
       const message = await this.extractErrorMessage(response);
       throw new Error(message);
     }
+  }
+
+  // ── Stock API ─────────────────────────────────────────────────────────────
+
+  async getStock(search?: string): Promise<StockItemResponse[]> {
+    const params = search ? `?search=${encodeURIComponent(search)}` : "";
+    const response = await fetch(`${API_BASE_URL}/api/stock${params}`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch stock");
+    return response.json();
+  }
+
+  async getLowStock(): Promise<StockItemResponse[]> {
+    const response = await fetch(`${API_BASE_URL}/api/stock/low-stock`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch low stock items");
+    return response.json();
+  }
+
+  async createStockItem(data: StockItemRequest): Promise<StockItemResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/stock`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async updateStockItem(
+    id: string,
+    data: StockItemRequest,
+  ): Promise<StockItemResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/stock/${id}`, {
+      method: "PUT",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async deleteStockItem(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/stock/${id}`, {
+      method: "DELETE",
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to delete stock item");
+  }
+
+  // ── Menu Items API ────────────────────────────────────────────────────────
+
+  async getMenuItems(params?: {
+    search?: string;
+    category?: string;
+    availableOnly?: boolean;
+  }): Promise<MenuItemResponse[]> {
+    const query = new URLSearchParams();
+    if (params?.search) query.set("search", params.search);
+    if (params?.category) query.set("category", params.category);
+    if (params?.availableOnly) query.set("availableOnly", "true");
+    const qs = query.toString() ? `?${query}` : "";
+    const response = await fetch(`${API_BASE_URL}/api/menu-items${qs}`, {
+      headers: this.getHeaders(this.isAuthenticated()),
+    });
+    if (!response.ok) throw new Error("Failed to fetch menu items");
+    return response.json();
+  }
+
+  async getMenuItemRecipe(id: string): Promise<RecipeIngredientDto[]> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/menu-items/${id}/recipe`,
+      {
+        headers: this.getHeaders(true),
+      },
+    );
+    if (!response.ok) throw new Error("Failed to fetch recipe");
+    return response.json();
+  }
+
+  async createMenuItem(data: MenuItemRequest): Promise<MenuItemResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/menu-items`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async updateMenuItem(
+    id: string,
+    data: MenuItemRequest,
+  ): Promise<MenuItemResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/menu-items/${id}`, {
+      method: "PUT",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async deleteMenuItem(id: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/menu-items/${id}`, {
+      method: "DELETE",
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to delete menu item");
+  }
+
+  // ── Orders API ────────────────────────────────────────────────────────────
+
+  async getOrders(status?: string): Promise<OrderResponse[]> {
+    const params = status ? `?status=${status}` : "";
+    const response = await fetch(`${API_BASE_URL}/api/orders${params}`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch orders");
+    return response.json();
+  }
+
+  async getOrder(id: number): Promise<OrderResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch order");
+    return response.json();
+  }
+
+  async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/orders`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async updateOrderStatus(id: number, status: string): Promise<OrderResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/orders/${id}/status`, {
+      method: "PATCH",
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ status } satisfies UpdateOrderStatusRequest),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
   }
 }
 

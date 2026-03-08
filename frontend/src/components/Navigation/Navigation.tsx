@@ -55,6 +55,18 @@ function Navigation() {
     )
   }
 
+  const isChefOrManager = () => {
+    return userInfo?.roles.some((role) =>
+      ["ROLE_CHEF", "ROLE_MANAGER", "ROLE_ADMIN"].includes(role),
+    );
+  };
+
+  const isWorker = () => {
+    return userInfo?.roles.some((role) =>
+      ["ROLE_WAITER", "ROLE_CHEF", "ROLE_MANAGER", "ROLE_ADMIN"].includes(role),
+    );
+  };
+
   const isAdmin = () => {
     return userInfo?.roles.includes("ROLE_ADMIN");
   };
@@ -95,6 +107,21 @@ function Navigation() {
             {userInfo && userInfo.authenticated && isManager() && (
               <li>
                 <Link to="/table-management">Manage Tables</Link>
+              </li>
+            )}
+            {userInfo && userInfo.authenticated && isManager() && (
+              <li>
+                <Link to="/stock">Stock</Link>
+              </li>
+            )}
+            {userInfo && userInfo.authenticated && isChefOrManager() && (
+              <li>
+                <Link to="/recipes">Recipes</Link>
+              </li>
+            )}
+            {userInfo && userInfo.authenticated && isWorker() && (
+              <li>
+                <Link to="/orders">Orders</Link>
               </li>
             )}
             {userInfo && userInfo.authenticated && isAdmin() && (

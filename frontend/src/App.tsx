@@ -19,6 +19,9 @@ import Reservations from './pages/Reservations'
 import TableManagement from './pages/TableManagement'
 import CreateCocktail from './pages/CreateCocktail'
 import AdminUsers from "./pages/AdminUsers";
+import Stock from "./pages/Stock";
+import Recipes from "./pages/Recipes";
+import Orders from "./pages/Orders";
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -116,6 +119,39 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
                 <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="stock"
+            element={
+              <ProtectedRoute allowedRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}>
+                <Stock />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="recipes"
+            element={
+              <ProtectedRoute
+                allowedRoles={["ROLE_MANAGER", "ROLE_CHEF", "ROLE_ADMIN"]}
+              >
+                <Recipes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="orders"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "ROLE_WAITER",
+                  "ROLE_CHEF",
+                  "ROLE_MANAGER",
+                  "ROLE_ADMIN",
+                ]}
+              >
+                <Orders />
               </ProtectedRoute>
             }
           />
