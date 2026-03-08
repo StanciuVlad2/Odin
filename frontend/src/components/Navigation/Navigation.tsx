@@ -55,6 +55,10 @@ function Navigation() {
     )
   }
 
+  const isAdmin = () => {
+    return userInfo?.roles.includes("ROLE_ADMIN");
+  };
+
   return (
     <>
       <nav className="navbar">
@@ -65,32 +69,50 @@ function Navigation() {
             </Link>
           </div>
           <ul className="nav-menu">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/about">About</Link></li>
-            <li><Link to="/menu">Menu</Link></li>
-            <li><Link to="/reservations">Reservations</Link></li>
-            <li><Link to="/create-cocktail">Create Cocktail</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/menu">Menu</Link>
+            </li>
+            <li>
+              <Link to="/reservations">Reservations</Link>
+            </li>
+            <li>
+              <Link to="/create-cocktail">Create Cocktail</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
             {userInfo && userInfo.authenticated && (
-              <li><Link to={getDashboardPath()}>Dashboard</Link></li>
+              <li>
+                <Link to={getDashboardPath()}>Dashboard</Link>
+              </li>
             )}
             {userInfo && userInfo.authenticated && isManager() && (
-              <li><Link to="/table-management">Manage Tables</Link></li>
+              <li>
+                <Link to="/table-management">Manage Tables</Link>
+              </li>
+            )}
+            {userInfo && userInfo.authenticated && isAdmin() && (
+              <li>
+                <Link to="/admin/users">Users</Link>
+              </li>
             )}
           </ul>
           <div className="nav-buttons">
             {userInfo && userInfo.authenticated ? (
               <>
                 <span className="user-email">{userInfo.email}</span>
-                <button 
-                  className="logout-btn"
-                  onClick={handleLogout}
-                >
+                <button className="logout-btn" onClick={handleLogout}>
                   Logout
                 </button>
               </>
             ) : (
-              <button 
+              <button
                 className="account-btn"
                 onClick={() => setShowAuthModal(true)}
               >
@@ -101,11 +123,9 @@ function Navigation() {
         </div>
       </nav>
 
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </>
-  )
+  );
 }
 
 export default Navigation

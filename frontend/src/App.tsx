@@ -18,6 +18,7 @@ import VerifyEmail from './pages/VerifyEmail'
 import Reservations from './pages/Reservations'
 import TableManagement from './pages/TableManagement'
 import CreateCocktail from './pages/CreateCocktail'
+import AdminUsers from "./pages/AdminUsers";
 
 // Layout component cu Navigation și Footer persistent
 function Layout() {
@@ -77,55 +78,72 @@ function App() {
           <Route path="reservations" element={<Reservations />} />
           <Route path="create-cocktail" element={<CreateCocktail />} />
           <Route path="verify-email" element={<VerifyEmail />} />
-          
+
           {/* Protected Routes */}
-          <Route 
-            path="dashboard" 
+          <Route
+            path="dashboard"
             element={
-              <ProtectedRoute allowedRoles={['ROLE_GUEST']}>
+              <ProtectedRoute allowedRoles={["ROLE_GUEST"]}>
                 <Dashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="worker-dashboard" 
+          <Route
+            path="worker-dashboard"
             element={
-              <ProtectedRoute allowedRoles={['ROLE_WAITER', 'ROLE_CHEF', 'ROLE_MANAGER', 'ROLE_ADMIN']}>
+              <ProtectedRoute
+                allowedRoles={[
+                  "ROLE_WAITER",
+                  "ROLE_CHEF",
+                  "ROLE_MANAGER",
+                  "ROLE_ADMIN",
+                ]}
+              >
                 <WorkerDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="table-management" 
+          <Route
+            path="table-management"
             element={
-              <ProtectedRoute allowedRoles={['ROLE_MANAGER', 'ROLE_ADMIN']}>
+              <ProtectedRoute allowedRoles={["ROLE_MANAGER", "ROLE_ADMIN"]}>
                 <TableManagement />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          {/* Unauthorized page */}
-          <Route 
-            path="unauthorized" 
+          <Route
+            path="admin/users"
             element={
-              <div style={{ 
-                minHeight: '100vh', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                flexDirection: 'column',
-                gap: '1rem',
-                color: '#2d5f3f'
-              }}>
+              <ProtectedRoute allowedRoles={["ROLE_ADMIN"]}>
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Unauthorized page */}
+          <Route
+            path="unauthorized"
+            element={
+              <div
+                style={{
+                  minHeight: "100vh",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  gap: "1rem",
+                  color: "#2d5f3f",
+                }}
+              >
                 <h1>🚫 Unauthorized</h1>
                 <p>You don't have permission to access this page.</p>
               </div>
-            } 
+            }
           />
         </Route>
       </Routes>
     </Router>
-  )
+  );
 }
 
 export default App

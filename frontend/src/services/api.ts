@@ -3,6 +3,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 export interface RegisterRequest {
   email: string;
   password: string;
+  skipEmailVerification?: boolean;
 }
 
 export interface LoginRequest {
@@ -99,6 +100,38 @@ export interface TableAvailability {
   available: boolean;
 }
 
+// ── Admin: User Management ──────────────────────────────────────────────────
+
+export interface UserAdminResponse {
+  id: number;
+  email: string;
+  roles: string[];
+  emailVerified: boolean;
+  createdAt: string | null;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface UpdateUserRolesRequest {
+  roles: string[];
+}
+
+export const ALL_ROLES = [
+  'ROLE_GUEST',
+  'ROLE_WAITER',
+  'ROLE_CHEF',
+  'ROLE_MANAGER',
+  'ROLE_ADMIN',
+] as const;
+
 class ApiService {
   private async extractErrorMessage(response: Response): Promise<string> {
     const text = await response.text();
@@ -136,6 +169,10 @@ class ApiService {
       const message = await this.extractErrorMessage(response);
       throw new Error(message);
     }
+  }
+
+  async createAdminUser(email: string, password: string): Promise<void> {
+    return this.register({ email, password, skipEmailVerification: true });
   }
 
   async login(data: LoginRequest): Promise<AuthResponse> {
@@ -352,6 +389,61 @@ class ApiService {
     }
 
     return await response.json();
+  }
+
+  // ── Admin: User Management ────────────────────────────────────────────────
+
+  async getAdminUsers(params: {
+    search?: string;
+    role?: string;
+    page?: number;
+    size?: number;
+  }): Promise<PageResponse<UserAdminResponse>> {
+    const query = new URLSearchParams();
+    if (params.search !== undefined) query.set("search", params.search);
+    if (params.role) query.set("role", params.role);
+    query.set("page", String(params.page ?? 0));
+    query.set("size", String(params.size ?? 20));
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/users?${query}`, {
+      method: "GET",
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return await response.json();
+  }
+
+  async updateUserRoles(
+    userId: number,
+    roles: string[],
+  ): Promise<UserAdminResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/users/${userId}/roles`,
+      {
+        method: "PATCH",
+        headers: this.getHeaders(true),
+        body: JSON.stringify({ roles } satisfies UpdateUserRolesRequest),
+      },
+    );
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return await response.json();
+  }
+
+  async deleteAdminUser(userId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+      method: "DELETE",
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
   }
 }
 
