@@ -63,10 +63,31 @@
 .dish-card {
   background: #fff;
   border-radius: 14px;
-  padding: 1.25rem;
+  overflow: hidden;
+  padding: 0;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 2px solid transparent;
   transition: border-color 0.2s;
+}
+
+.dish-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.dish-card-header,
+.dish-description,
+.dish-status,
+.recipe-section,
+.dish-actions {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.dish-card-header {
+  padding-top: 1.25rem;
 }
 
 .dish-card:hover {
@@ -466,4 +487,30 @@
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+/* Image upload */
+.image-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.image-input {
+  padding: 0.4rem 0 !important;
+  border: none !important;
+  cursor: pointer;
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #e8f5e9;
+}
+
+/* dish-actions needs bottom padding when no image */
+.dish-actions {
+  padding-bottom: 1.25rem;
 }

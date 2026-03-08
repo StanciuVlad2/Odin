@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import { apiService } from "../../services/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
+const toAbsoluteUrl = (url: string | null | undefined) =>
+  url ? (url.startsWith("http") ? url : `${API_BASE_URL}${url}`) : null;
 import type {
   MenuItemResponse,
   MenuItemRequest,
@@ -45,6 +50,8 @@ function Recipes() {
   const [form, setForm] = useState<MenuItemRequest>(emptyForm());
   const [saving, setSaving] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<
     Record<number, StockItemResponse[]>
   >({});
@@ -109,6 +116,8 @@ function Recipes() {
   const openCreate = () => {
     setEditing(null);
     setForm(emptyForm());
+    setImageFile(null);
+    setImagePreview(null);
     setShowForm(true);
   };
 
@@ -122,6 +131,8 @@ function Recipes() {
       available: item.available,
       recipe: item.recipe.map((r) => ({ ...r })),
     });
+    setImageFile(null);
+    setImagePreview(toAbsoluteUrl(item.imageUrl));
     setShowForm(true);
   };
 
@@ -133,12 +144,16 @@ function Recipes() {
     }
     setSaving(true);
     try {
+      let saved: MenuItemResponse;
       if (editing) {
-        await apiService.updateMenuItem(editing.id, form);
+        saved = await apiService.updateMenuItem(editing.id, form);
         toast.success("Menu item updated");
       } else {
-        await apiService.createMenuItem(form);
+        saved = await apiService.createMenuItem(form);
         toast.success("Menu item created");
+      }
+      if (imageFile) {
+        await apiService.uploadMenuItemImage(saved.id, imageFile);
       }
       setShowForm(false);
       load();
@@ -222,6 +237,13 @@ function Recipes() {
                 key={item.id}
                 className={`dish-card ${!item.available ? "unavailable" : ""}`}
               >
+                {item.imageUrl && (
+                  <img
+                    src={toAbsoluteUrl(item.imageUrl)!}
+                    alt={item.name}
+                    className="dish-image"
+                  />
+                )}
                 <div className="dish-card-header">
                   <div>
                     <h3 className="dish-name">{item.name}</h3>
@@ -381,6 +403,33 @@ function Recipes() {
                   placeholder="Short description..."
                 />
               </label>
+
+              <div className="image-upload-section">
+                <label className="full-width">
+                  Photo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      setImageFile(file);
+                      setImagePreview(
+                        file
+                          ? URL.createObjectURL(file)
+                          : toAbsoluteUrl(editing?.imageUrl),
+                      );
+                    }}
+                    className="image-input"
+                  />
+                </label>
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="image-preview"
+                  />
+                )}
+              </div>
 
               <div className="recipe-editor">
                 <div className="recipe-editor-header">

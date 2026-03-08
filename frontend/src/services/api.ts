@@ -169,6 +169,7 @@ export interface MenuItemResponse {
   price: number;
   category: string | null;
   available: boolean;
+  imageUrl?: string | null;
   recipe: RecipeIngredientDto[];
 }
 
@@ -178,6 +179,7 @@ export interface MenuItemRequest {
   price: number;
   category?: string;
   available?: boolean;
+  imageUrl?: string;
   recipe?: RecipeIngredientDto[];
 }
 
@@ -649,6 +651,25 @@ class ApiService {
       headers: this.getHeaders(true),
     });
     if (!response.ok) throw new Error("Failed to delete menu item");
+  }
+
+  async uploadMenuItemImage(
+    id: string,
+    file: File,
+  ): Promise<{ imageUrl: string }> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await fetch(`${API_BASE_URL}/api/menu-items/${id}/image`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
   }
 
   // ── Orders API ────────────────────────────────────────────────────────────
