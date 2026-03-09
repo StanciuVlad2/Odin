@@ -1,6 +1,8 @@
-import './Home.css'
+import { useNavigate } from "react-router-dom";
+import "./Home.css";
 
 function Home() {
+  const navigate = useNavigate();
   return (
     <div className="page">
       <div className="home-hero">
@@ -8,7 +10,9 @@ function Home() {
           <h1>Welcome to Odin Restaurant</h1>
           <p className="hero-subtitle">Experience Culinary Excellence</p>
           <p>Where tradition meets innovation in every dish</p>
-          <button className="cta-btn">Reserve a Table</button>
+          <button className="cta-btn" onClick={() => navigate("/reservations")}>
+            Reserve a Table
+          </button>
         </div>
       </div>
 
@@ -17,7 +21,9 @@ function Home() {
           <div className="feature-card">
             <span className="feature-icon">👨‍🍳</span>
             <h3>Master Chefs</h3>
-            <p>Our experienced chefs bring passion and expertise to every dish</p>
+            <p>
+              Our experienced chefs bring passion and expertise to every dish
+            </p>
           </div>
           <div className="feature-card">
             <span className="feature-icon">🌿</span>
@@ -37,7 +43,7 @@ function Home() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;
