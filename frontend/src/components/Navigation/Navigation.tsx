@@ -2,16 +2,20 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from "react";
 import toast from 'react-hot-toast'
 import AuthModal from '../AuthModal'
+import CartModal from '../CartModal'
 import { apiService } from '../../services/api'
 import type { MeResponse } from '../../services/api'
+import { useCart } from '../../context/CartContext'
 import './Navigation.css'
 
 function Navigation() {
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showCartModal, setShowCartModal] = useState(false)
   const [userInfo, setUserInfo] = useState<MeResponse | null>(null)
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -170,6 +174,16 @@ function Navigation() {
             </div>
           )}
           <div className="nav-buttons">
+            {totalItems > 0 && (
+              <button
+                className="cart-btn"
+                onClick={() => setShowCartModal(true)}
+                aria-label="View cart"
+              >
+                🛒
+                <span className="cart-badge">{totalItems}</span>
+              </button>
+            )}
             {userInfo && userInfo.authenticated ? (
               <>
                 <span className="user-email">{userInfo.email}</span>
@@ -190,6 +204,7 @@ function Navigation() {
       </nav>
 
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+      {showCartModal && <CartModal onClose={() => setShowCartModal(false)} />}
     </>
   );
 }

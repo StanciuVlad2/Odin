@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import Section from '../../components/Section';
 import { apiService } from '../../services/api';
 import type { MenuItemResponse } from '../../services/api';
+import { useCart } from '../../context/CartContext';
 import './Menu.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
@@ -20,6 +22,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 function Menu() {
   const [items, setItems] = useState<MenuItemResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const { addItem } = useCart();
 
   useEffect(() => {
     apiService
@@ -28,6 +31,15 @@ function Menu() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const handleAddToCart = (item: MenuItemResponse) => {
+    if (!apiService.isAuthenticated()) {
+      toast.error('Please log in to place an order');
+      return;
+    }
+    addItem({ menuItemId: item.id, name: item.name, price: item.price });
+    toast.success(`${item.name} added to cart`);
+  };
 
   const grouped = items.reduce<Record<string, MenuItemResponse[]>>((acc, item) => {
     const key = item.category ?? 'other';
@@ -69,7 +81,15 @@ function Menu() {
                     <div className="menu-card-body">
                       <h3>{item.name}</h3>
                       {item.description && <p>{item.description}</p>}
-                      <span className="price">€{item.price.toFixed(2)}</span>
+                      <div className="menu-card-footer">
+                        <span className="price">€{item.price.toFixed(2)}</span>
+                        <button
+                          className="btn-add-to-cart"
+                          onClick={() => handleAddToCart(item)}
+                        >
+                          + Order
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

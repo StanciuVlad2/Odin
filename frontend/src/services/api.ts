@@ -429,14 +429,14 @@ class ApiService {
     return await response.json();
   }
 
-  async getMyReservations(): Promise<ReservationResponse[]> {
-    const response = await fetch(
-      `${API_BASE_URL}/api/reservations/my-reservations`,
-      {
-        method: "GET",
-        headers: this.getHeaders(true),
-      },
-    );
+  async getMyReservations(activeOnly = false): Promise<ReservationResponse[]> {
+    const url = activeOnly
+      ? `${API_BASE_URL}/api/reservations/my-reservations?active=true`
+      : `${API_BASE_URL}/api/reservations/my-reservations`;
+    const response = await fetch(url, {
+      method: "GET",
+      headers: this.getHeaders(true),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch reservations");

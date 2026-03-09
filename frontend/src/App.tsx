@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
 import { Toaster, ToastBar, toast } from "react-hot-toast";
 import './App.css'
+import { CartProvider } from './context/CartContext'
 
 // Components
 import Navigation from './components/Navigation'
@@ -95,7 +96,8 @@ function Layout() {
 
 function App() {
   return (
-    <Router>
+    <CartProvider>
+      <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
@@ -204,6 +206,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
+    </CartProvider>
   );
 }
 
