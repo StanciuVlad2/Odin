@@ -1,17 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import toast from 'react-hot-toast'
-import AuthModal from '../AuthModal'
-import CartModal from '../CartModal'
-import { apiService } from '../../services/api'
-import type { MeResponse } from '../../services/api'
-import { useCart } from '../../context/CartContext'
-import './Navigation.css'
+import toast from "react-hot-toast";
+import AuthModal from "../AuthModal";
+import CartModal from "../CartModal";
+import { apiService } from "../../services/api";
+import type { MeResponse } from "../../services/api";
+import { useCart } from "../../context/CartContext";
+import "./Navigation.css";
 
 function Navigation() {
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [showCartModal, setShowCartModal] = useState(false)
-  const [userInfo, setUserInfo] = useState<MeResponse | null>(null)
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
+  const [userInfo, setUserInfo] = useState<MeResponse | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -101,22 +101,24 @@ function Navigation() {
           </div>
           <ul className="nav-menu">
             <li>
-              <Link to="/">Home</Link>
+              <NavLink to="/" end>
+                Home
+              </NavLink>
             </li>
             <li>
-              <Link to="/about">About</Link>
+              <NavLink to="/about">About</NavLink>
             </li>
             <li>
-              <Link to="/menu">Menu</Link>
+              <NavLink to="/menu">Menu</NavLink>
             </li>
             <li>
-              <Link to="/reservations">Reservations</Link>
+              <NavLink to="/reservations">Reservations</NavLink>
             </li>
             <li>
-              <Link to="/create-cocktail">Create Cocktail</Link>
+              <NavLink to="/create-cocktail">Create Cocktail</NavLink>
             </li>
             <li>
-              <Link to="/contact">Contact</Link>
+              <NavLink to="/contact">Contact</NavLink>
             </li>
           </ul>
 
@@ -209,4 +211,4 @@ function Navigation() {
   );
 }
 
-export default Navigation
+export default Navigation;

@@ -51,6 +51,23 @@
   color: #e08ea8;
 }
 
+.nav-menu a.active {
+  color: #2d5f3f;
+  font-weight: 700;
+  position: relative;
+}
+
+.nav-menu a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e08ea8;
+  border-radius: 2px;
+}
+
 .nav-buttons {
   display: flex;
   gap: 1rem;
