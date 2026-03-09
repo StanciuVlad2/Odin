@@ -32,10 +32,21 @@
 
 .menu-card {
   background: white;
-  padding: 2rem;
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
+  overflow: hidden;
+}
+
+.menu-card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+
+.menu-card-body {
+  padding: 1.5rem 2rem 2rem;
 }
 
 .menu-card:hover {
@@ -62,4 +73,12 @@
   border-radius: 20px;
   font-weight: 600;
   box-shadow: 0 3px 10px rgba(139, 195, 149, 0.3);
+}
+
+.menu-loading,
+.menu-empty {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 3rem;
+  font-size: 1.1rem;
 }
