@@ -1,188 +1,228 @@
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import './OrderModal.css'
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { apiService } from "../../services/api";
+import type { MenuItemResponse } from "../../services/api";
+import "./OrderModal.css";
 
 interface OrderModalProps {
-  orderType: 'now' | 'pickup'
-  onClose: () => void
-  onOrderPlaced: () => void
+  orderType: "now" | "pickup";
+  onClose: () => void;
+  onOrderPlaced: () => void;
 }
 
-interface MenuItem {
-  id: number
-  name: string
-  price: number
-  category: string
+interface CartItem {
+  menuItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
 }
 
-interface CartItem extends MenuItem {
-  quantity: number
-}
+const CATEGORY_LABELS: Record<string, string> = {
+  starter: "🥗 Starters",
+  main: "🍽️ Main Courses",
+  dessert: "🍰 Desserts",
+  beverage: "🥤 Beverages",
+  pizza: "🍕 Pizzas",
+  burger: "🍔 Burgers",
+  salad: "🥙 Salads",
+  soup: "🍜 Soups",
+};
 
 function OrderModal({ orderType, onClose, onOrderPlaced }: OrderModalProps) {
-  const [selectedItems, setSelectedItems] = useState<CartItem[]>([])
-  const [pickupTime, setPickupTime] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [menuItems, setMenuItems] = useState<MenuItemResponse[]>([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [pickupTime, setPickupTime] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Mock menu items - replace with API call later
-  const menuItems: MenuItem[] = [
-    { id: 1, name: 'Pizza Margherita', price: 18.50, category: 'Pizza' },
-    { id: 2, name: 'Pasta Carbonara', price: 16.00, category: 'Pasta' },
-    { id: 3, name: 'Caesar Salad', price: 12.00, category: 'Salads' },
-    { id: 4, name: 'Grilled Chicken', price: 20.00, category: 'Mains' },
-    { id: 5, name: 'Tiramisu', price: 8.50, category: 'Desserts' },
-    { id: 6, name: 'Espresso', price: 4.00, category: 'Beverages' },
-  ]
+  useEffect(() => {
+    apiService
+      .getMenuItems({ availableOnly: true })
+      .then(setMenuItems)
+      .catch(() => toast.error("Failed to load menu"))
+      .finally(() => setMenuLoading(false));
+  }, []);
 
-  const addToCart = (item: MenuItem) => {
-    const existingItem = selectedItems.find(i => i.id === item.id)
-    if (existingItem) {
-      setSelectedItems(selectedItems.map(i => 
-        i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-      ))
-    } else {
-      setSelectedItems([...selectedItems, { ...item, quantity: 1 }])
-    }
-  }
+  const addToCart = (item: MenuItemResponse) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.menuItemId === item.id);
+      if (existing) {
+        return prev.map((i) =>
+          i.menuItemId === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+        );
+      }
+      return [
+        ...prev,
+        {
+          menuItemId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: 1,
+        },
+      ];
+    });
+  };
 
-  const removeFromCart = (itemId: number) => {
-    const existingItem = selectedItems.find(i => i.id === itemId)
-    if (existingItem && existingItem.quantity > 1) {
-      setSelectedItems(selectedItems.map(i => 
-        i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i
-      ))
-    } else {
-      setSelectedItems(selectedItems.filter(i => i.id !== itemId))
-    }
-  }
+  const removeFromCart = (menuItemId: string) => {
+    setCart((prev) => {
+      const existing = prev.find((i) => i.menuItemId === menuItemId);
+      if (existing && existing.quantity > 1) {
+        return prev.map((i) =>
+          i.menuItemId === menuItemId ? { ...i, quantity: i.quantity - 1 } : i,
+        );
+      }
+      return prev.filter((i) => i.menuItemId !== menuItemId);
+    });
+  };
 
-  const getTotal = () => {
-    return selectedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  }
+  const getTotal = () => cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   const getMinPickupTime = () => {
-    const now = new Date()
-    now.setHours(now.getHours() + 1)
-    return now.toISOString().slice(0, 16)
-  }
+    const d = new Date();
+    d.setHours(d.getHours() + 1);
+    return d.toISOString().slice(0, 16);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
 
-    if (selectedItems.length === 0) {
-      setError('Please select at least one item')
-      return
+    if (cart.length === 0) {
+      toast.error("Please select at least one item");
+      return;
     }
 
-    if (orderType === 'pickup') {
+    if (orderType === "pickup") {
       if (!pickupTime) {
-        setError('Please select a pickup time')
-        return
+        toast.error("Please select a pickup time");
+        return;
       }
-
-      const selectedTime = new Date(pickupTime)
-      const minTime = new Date()
-      minTime.setHours(minTime.getHours() + 1)
-
-      if (selectedTime < minTime) {
-        setError('Pickup time must be at least 1 hour from now')
-        return
+      if (new Date(pickupTime) < new Date(getMinPickupTime())) {
+        toast.error("Pickup time must be at least 1 hour from now");
+        return;
       }
     }
 
-    setLoading(true)
-
+    setSubmitting(true);
     try {
-      // TODO: Implement API call to place order
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      if (orderType === 'pickup') {
-        toast.success(`Order placed! Pickup at ${new Date(pickupTime).toLocaleString('ro-RO')}`, {
-          duration: 4000,
-        })
-      } else {
-        toast.success('Order placed successfully! Your order will be ready soon!')
-      }
-      onOrderPlaced()
+      await apiService.createOrder({
+        notes:
+          orderType === "pickup"
+            ? `Pickup at: ${new Date(pickupTime).toLocaleString("ro-RO")}`
+            : undefined,
+        items: cart.map((i) => ({
+          menuItemId: i.menuItemId,
+          quantity: i.quantity,
+        })),
+      });
+      toast.success(
+        orderType === "pickup"
+          ? `Order placed! Pickup at ${new Date(pickupTime).toLocaleString("ro-RO")} 📦`
+          : "Order placed! Your food will be ready soon 🍽️",
+        { duration: 4000 },
+      );
+      onOrderPlaced();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place order')
-      toast.error('Failed to place order. Please try again.')
+      toast.error(err instanceof Error ? err.message : "Failed to place order");
     } finally {
-      setLoading(false)
+      setSubmitting(false);
     }
-  }
+  };
 
-  const groupedItems = menuItems.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = []
-    }
-    acc[item.category].push(item)
-    return acc
-  }, {} as Record<string, MenuItem[]>)
+  const grouped = menuItems.reduce<Record<string, MenuItemResponse[]>>(
+    (acc, item) => {
+      const key = item.category ?? "other";
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(item);
+      return acc;
+    },
+    {},
+  );
+
+  const categoryOrder = [
+    "starter",
+    "soup",
+    "salad",
+    "pizza",
+    "burger",
+    "main",
+    "dessert",
+    "beverage",
+  ];
+  const sortedCategories = [
+    ...categoryOrder.filter((c) => grouped[c]),
+    ...Object.keys(grouped).filter((c) => !categoryOrder.includes(c)),
+  ];
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="order-modal-content" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>×</button>
-        
-        <h2 className="modal-title">
-          {orderType === 'now' ? '🍽️ Order Now' : '📦 Order for Pickup'}
-        </h2>
+        <button className="close-btn" onClick={onClose}>
+          ×
+        </button>
 
-        {error && <div className="error-message">{error}</div>}
+        <h2 className="modal-title">
+          {orderType === "now" ? "🍽️ Order Now" : "📦 Order for Pickup"}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <div className="order-sections">
             {/* Menu Items */}
             <div className="menu-section">
               <h3>Select Items</h3>
-              <div className="menu-items">
-                {Object.entries(groupedItems).map(([category, items]) => (
-                  <div key={category} className="menu-category">
-                    <h4>{category}</h4>
-                    {items.map(item => (
-                      <div key={item.id} className="menu-item">
-                        <div className="item-info">
-                          <span className="item-name">{item.name}</span>
-                          <span className="item-price">${item.price.toFixed(2)}</span>
+              {menuLoading ? (
+                <p className="empty-cart">Loading menu…</p>
+              ) : (
+                <div className="menu-items">
+                  {sortedCategories.map((category) => (
+                    <div key={category} className="menu-category">
+                      <h4>
+                        {CATEGORY_LABELS[category] ??
+                          `🍴 ${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                      </h4>
+                      {grouped[category].map((item) => (
+                        <div key={item.id} className="menu-item">
+                          <div className="item-info">
+                            <span className="item-name">{item.name}</span>
+                            <span className="item-price">
+                              €{item.price.toFixed(2)}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="add-btn"
+                            onClick={() => addToCart(item)}
+                          >
+                            +
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          className="add-btn"
-                          onClick={() => addToCart(item)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Cart */}
             <div className="cart-section">
               <h3>Your Order</h3>
-              {selectedItems.length === 0 ? (
+              {cart.length === 0 ? (
                 <p className="empty-cart">No items selected</p>
               ) : (
                 <div className="cart-items">
-                  {selectedItems.map(item => (
-                    <div key={item.id} className="cart-item">
+                  {cart.map((item) => (
+                    <div key={item.menuItemId} className="cart-item">
                       <div className="cart-item-info">
                         <span className="cart-item-name">{item.name}</span>
-                        <span className="cart-item-qty">x{item.quantity}</span>
+                        <span className="cart-item-qty">×{item.quantity}</span>
                       </div>
                       <div className="cart-item-actions">
                         <span className="cart-item-price">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          €{(item.price * item.quantity).toFixed(2)}
                         </span>
                         <button
                           type="button"
                           className="remove-btn"
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeFromCart(item.menuItemId)}
                         >
                           −
                         </button>
@@ -191,12 +231,14 @@ function OrderModal({ orderType, onClose, onOrderPlaced }: OrderModalProps) {
                   ))}
                   <div className="cart-total">
                     <span>Total:</span>
-                    <span className="total-amount">${getTotal().toFixed(2)}</span>
+                    <span className="total-amount">
+                      €{getTotal().toFixed(2)}
+                    </span>
                   </div>
                 </div>
               )}
 
-              {orderType === 'pickup' && (
+              {orderType === "pickup" && (
                 <div className="pickup-time-section">
                   <label htmlFor="pickupTime">Pickup Time:</label>
                   <input
@@ -214,16 +256,16 @@ function OrderModal({ orderType, onClose, onOrderPlaced }: OrderModalProps) {
               <button
                 type="submit"
                 className="submit-order-btn"
-                disabled={loading || selectedItems.length === 0}
+                disabled={submitting || cart.length === 0}
               >
-                {loading ? 'Placing Order...' : 'Place Order'}
+                {submitting ? "Placing Order…" : "Place Order"}
               </button>
             </div>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
 
-export default OrderModal
+export default OrderModal;
