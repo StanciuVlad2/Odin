@@ -1,20 +1,12 @@
 import { useState, useEffect } from 'react'
 import { apiService } from '../../services/api'
+import type { OrderResponse } from '../../services/api'
 import OrderModal from '../../components/OrderModal/OrderModal'
 import './Dashboard.css'
 
-interface Order {
-  id: number
-  items: string[]
-  total: number
-  status: 'pending' | 'completed' | 'cancelled'
-  date: string
-  pickupTime?: string
-}
-
 function Dashboard() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+  const [orders, setOrders] = useState<OrderResponse[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<OrderResponse[]>([])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orderType, setOrderType] = useState<'now' | 'pickup'>('now')
@@ -29,7 +21,7 @@ function Dashboard() {
     if (statusFilter === 'all') {
       setFilteredOrders(orders)
     } else {
-      setFilteredOrders(orders.filter(order => order.status === statusFilter))
+      setFilteredOrders(orders.filter(order => order.status === statusFilter.toUpperCase()))
     }
   }, [statusFilter, orders])
 
@@ -43,33 +35,12 @@ function Dashboard() {
   }
 
   const loadOrders = async () => {
-    // TODO: Implement API call to fetch orders
-    // For now, using mock data
-    const mockOrders: Order[] = [
-      {
-        id: 1,
-        items: ['Pizza Margherita', 'Pasta Carbonara'],
-        total: 45.50,
-        status: 'completed',
-        date: '2025-11-28T18:30:00',
-      },
-      {
-        id: 2,
-        items: ['Caesar Salad', 'Grilled Chicken'],
-        total: 32.00,
-        status: 'pending',
-        date: '2025-11-30T12:15:00',
-        pickupTime: '2025-11-30T13:30:00',
-      },
-      {
-        id: 3,
-        items: ['Tiramisu', 'Espresso'],
-        total: 12.50,
-        status: 'completed',
-        date: '2025-11-25T16:45:00',
-      },
-    ]
-    setOrders(mockOrders)
+    try {
+      const data = await apiService.getMyOrders()
+      setOrders(data)
+    } catch (err) {
+      console.error('Failed to load orders:', err)
+    }
   }
 
   const handleOrderNow = () => {
@@ -120,9 +91,9 @@ function Dashboard() {
                 className="status-filter"
               >
                 <option value="all">All Orders</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+              <option value="PENDING">Pending</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
           </div>
@@ -134,26 +105,26 @@ function Dashboard() {
           ) : (
             <div className="orders-list">
               {filteredOrders.map(order => (
-                <div key={order.id} className={`order-card ${order.status}`}>
+                <div key={order.id} className={`order-card ${order.status.toLowerCase()}`}>
                   <div className="order-header">
                     <span className="order-id">Order #{order.id}</span>
-                    <span className={`order-status status-${order.status}`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                    <span className={`order-status status-${order.status.toLowerCase()}`}>
+                      {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
                     </span>
                   </div>
                   <div className="order-items">
-                    {order.items.map((item, idx) => (
-                      <span key={idx} className="order-item">{item}</span>
+                    {order.items.map((item) => (
+                      <span key={item.id} className="order-item">
+                        {item.quantity}× {item.menuItemName}
+                      </span>
                     ))}
                   </div>
                   <div className="order-footer">
-                    <span className="order-date">{formatDate(order.date)}</span>
-                    {order.pickupTime && (
-                      <span className="pickup-time">
-                        Pickup: {formatDate(order.pickupTime)}
-                      </span>
+                    <span className="order-date">{formatDate(order.createdAt)}</span>
+                    {order.notes && (
+                      <span className="pickup-time">Note: {order.notes}</span>
                     )}
-                    <span className="order-total">${order.total.toFixed(2)}</span>
+                    <span className="order-total">${order.totalPrice.toFixed(2)}</span>
                   </div>
                 </div>
               ))}

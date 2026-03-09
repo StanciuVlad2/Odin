@@ -674,6 +674,14 @@ class ApiService {
 
   // ── Orders API ────────────────────────────────────────────────────────────
 
+  async getMyOrders(): Promise<OrderResponse[]> {
+    const response = await fetch(`${API_BASE_URL}/api/orders/my-orders`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch your orders");
+    return response.json();
+  }
+
   async getOrders(status?: string): Promise<OrderResponse[]> {
     const params = status ? `?status=${status}` : "";
     const response = await fetch(`${API_BASE_URL}/api/orders${params}`, {
