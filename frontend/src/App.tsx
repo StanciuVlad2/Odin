@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
+import { Toaster, ToastBar, toast } from "react-hot-toast";
 import './App.css'
 
 // Components
@@ -30,30 +30,55 @@ function Layout() {
       <Toaster
         position="top-right"
         toastOptions={{
-          duration: 3000,
+          duration: 4000,
           style: {
-            background: '#fdfaf6',
-            color: '#2d5f3f',
-            border: '2px solid #8bc395',
-            borderRadius: '15px',
-            padding: '1rem 1.5rem',
-            fontSize: '1rem',
-            fontWeight: '500',
+            background: "#fdfaf6",
+            color: "#2d5f3f",
+            border: "2px solid #8bc395",
+            borderRadius: "15px",
+            padding: "0.75rem 1rem 0.75rem 1.25rem",
+            fontSize: "1rem",
+            fontWeight: "500",
           },
           success: {
-            iconTheme: {
-              primary: '#8bc395',
-              secondary: '#fdfaf6',
-            },
+            iconTheme: { primary: "#8bc395", secondary: "#fdfaf6" },
           },
           error: {
-            iconTheme: {
-              primary: '#e08ea8',
-              secondary: '#fdfaf6',
+            iconTheme: { primary: "#e08ea8", secondary: "#fdfaf6" },
+            style: {
+              border: "2px solid #e08ea8",
             },
           },
         }}
-      />
+      >
+        {(t) => (
+          <ToastBar toast={t}>
+            {({ icon, message }) => (
+              <>
+                {icon}
+                {message}
+                <button
+                  onClick={() => toast.dismiss(t.id)}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#7f8c8d",
+                    fontSize: "1.2rem",
+                    lineHeight: 1,
+                    padding: "0 2px",
+                    marginLeft: "4px",
+                    flexShrink: 0,
+                  }}
+                  aria-label="Close notification"
+                >
+                  ×
+                </button>
+              </>
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
       <Navigation />
       <main className="main-content">
         <Outlet />
@@ -65,7 +90,7 @@ function Layout() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 function App() {
