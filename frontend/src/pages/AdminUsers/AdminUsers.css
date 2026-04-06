@@ -46,18 +46,9 @@
   min-width: 240px;
 }
 
-.search-icon {
-  position: absolute;
-  left: 0.9rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1rem;
-  pointer-events: none;
-}
-
 .search-input {
   width: 100%;
-  padding: 0.7rem 2.5rem 0.7rem 2.4rem;
+  padding: 0.7rem 2.5rem 0.7rem 2.75rem;
   border: 2px solid #c9dccb;
   border-radius: 10px;
   font-size: 0.95rem;

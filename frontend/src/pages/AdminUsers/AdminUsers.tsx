@@ -187,7 +187,7 @@ function AdminUsers() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 3;
 
   // Debounce search input — fires 400ms after user stops typing
   const handleSearchChange = useCallback((value: string) => {
@@ -331,7 +331,6 @@ function AdminUsers() {
         {/* ── Filters ── */}
         <div className="filters-bar">
           <div className="search-wrapper">
-            <span className="search-icon">🔍</span>
             <input
               type="text"
               className="search-input"
