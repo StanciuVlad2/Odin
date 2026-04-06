@@ -72,7 +72,7 @@ function Recipes() {
     }
     debounceTimers.current[idx] = setTimeout(async () => {
       try {
-        const results = await apiService.getStock(value);
+        const results = await apiService.getAllStock(value);
         setSuggestions((s) => ({ ...s, [idx]: results }));
         setShowSuggestions((s) => ({ ...s, [idx]: true }));
       } catch {

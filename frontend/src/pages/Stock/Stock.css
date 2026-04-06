@@ -203,6 +203,65 @@
   background: #e0e0e0;
 }
 
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 0 0.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pagination-info {
+  color: #6b7f6e;
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.page-btn {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 0.5rem;
+  border: 2px solid #c9dccb;
+  border-radius: 8px;
+  background: white;
+  color: #2d5f3f;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #2d5f3f;
+  border-color: #2d5f3f;
+  color: white;
+}
+
+.page-btn.active {
+  background: #2d5f3f;
+  border-color: #2d5f3f;
+  color: white;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-ellipsis {
+  color: #8a9e8c;
+  padding: 0 0.25rem;
+  font-size: 1rem;
+  line-height: 36px;
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;

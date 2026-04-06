@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
 import { apiService } from "../../services/api";
 import type {
   StockItemResponse,
   StockItemRequest,
   StockType,
+  PageResponse,
 } from "../../services/api";
 import "./Stock.css";
 
@@ -39,35 +40,77 @@ const emptyForm = (): StockItemRequest => ({
   type: "SOLID",
 });
 
+const PAGE_SIZE = 5;
+
 function Stock() {
-  const [items, setItems] = useState<StockItemResponse[]>([]);
+  const [data, setData] = useState<PageResponse<StockItemResponse> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<StockItemResponse | null>(null);
   const [form, setForm] = useState<StockItemRequest>(emptyForm());
   const [saving, setSaving] = useState(false);
   const [displayUnits, setDisplayUnits] = useState<Record<string, string>>({});
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const getDisplayUnit = (item: StockItemResponse) =>
     displayUnits[item.id] ?? item.unit;
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearch(value);
+      setPage(0);
+    }, 400);
+  }, []);
+
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiService.getStock(search || undefined);
-      setItems(data);
+      const result = await apiService.getStock({
+        search: search || undefined,
+        page,
+        size: PAGE_SIZE,
+      });
+      setData(result);
     } catch {
       toast.error("Failed to load stock items");
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, page]);
 
   useEffect(() => {
-    const timer = setTimeout(load, 300);
-    return () => clearTimeout(timer);
+    load();
   }, [load]);
+
+  const items = data?.content ?? [];
+  const currentPage = data?.page ?? 0;
+  const totalPages = data?.totalPages ?? 0;
+
+  const buildPageRange = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      pages.push(0);
+      if (currentPage > 2) pages.push("…");
+      for (
+        let i = Math.max(1, currentPage - 1);
+        i <= Math.min(totalPages - 2, currentPage + 1);
+        i++
+      )
+        pages.push(i);
+      if (currentPage < totalPages - 3) pages.push("…");
+      pages.push(totalPages - 1);
+    }
+    return pages;
+  };
 
   const openCreate = () => {
     setEditing(null);
@@ -140,8 +183,8 @@ function Stock() {
         <input
           type="text"
           placeholder="Search ingredients..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => handleSearchChange(e.target.value)}
           className="search-input"
         />
       </div>
@@ -149,87 +192,151 @@ function Stock() {
       {loading ? (
         <div className="stock-loading">Loading inventory...</div>
       ) : (
-        <div className="stock-table-wrapper">
-          <table className="stock-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Min. Threshold</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.length === 0 ? (
+        <>
+          <div className="stock-table-wrapper">
+            <table className="stock-table">
+              <thead>
                 <tr>
-                  <td colSpan={6} className="empty-row">
-                    No ingredients found
-                  </td>
+                  <th>Name</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Min. Threshold</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ) : (
-                items.map((item) => (
-                  <tr
-                    key={item.id}
-                    className={item.lowStock ? "low-stock-row" : ""}
-                  >
-                    <td className="ingredient-name">{item.name}</td>
-                    <td>
-                      {parseFloat(
-                        convertUnit(
-                          item.quantity,
-                          item.unit,
-                          getDisplayUnit(item),
-                        ).toFixed(2),
-                      )}
-                    </td>
-                    <td>
-                      <select
-                        className="unit-display-select"
-                        value={getDisplayUnit(item)}
-                        onChange={(e) =>
-                          setDisplayUnits((d) => ({
-                            ...d,
-                            [item.id]: e.target.value,
-                          }))
-                        }
-                      >
-                        {UNITS_BY_TYPE[item.type].map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>{item.minimumThreshold ?? "—"}</td>
-                    <td>
-                      {item.lowStock ? (
-                        <span className="badge badge-warning">Low Stock</span>
-                      ) : (
-                        <span className="badge badge-ok">OK</span>
-                      )}
-                    </td>
-                    <td className="actions-cell">
-                      <button
-                        className="btn-edit"
-                        onClick={() => openEdit(item)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(item)}
-                      >
-                        Delete
-                      </button>
+              </thead>
+              <tbody>
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="empty-row">
+                      No ingredients found
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className={item.lowStock ? "low-stock-row" : ""}
+                    >
+                      <td className="ingredient-name">{item.name}</td>
+                      <td>
+                        {parseFloat(
+                          convertUnit(
+                            item.quantity,
+                            item.unit,
+                            getDisplayUnit(item),
+                          ).toFixed(2),
+                        )}
+                      </td>
+                      <td>
+                        <select
+                          className="unit-display-select"
+                          value={getDisplayUnit(item)}
+                          onChange={(e) =>
+                            setDisplayUnits((d) => ({
+                              ...d,
+                              [item.id]: e.target.value,
+                            }))
+                          }
+                        >
+                          {UNITS_BY_TYPE[item.type].map((u) => (
+                            <option key={u} value={u}>
+                              {u}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>{item.minimumThreshold ?? "—"}</td>
+                      <td>
+                        {item.lowStock ? (
+                          <span className="badge badge-warning">Low Stock</span>
+                        ) : (
+                          <span className="badge badge-ok">OK</span>
+                        )}
+                      </td>
+                      <td className="actions-cell">
+                        <button
+                          className="btn-edit"
+                          onClick={() => openEdit(item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDelete(item)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {data && totalPages > 1 && (
+            <div className="pagination">
+              <div className="pagination-info">
+                Showing {data.page * data.size + 1}–
+                {Math.min((data.page + 1) * data.size, data.totalElements)} of{" "}
+                {data.totalElements}
+              </div>
+              <div className="pagination-controls">
+                <button
+                  className="page-btn"
+                  onClick={() => setPage(0)}
+                  disabled={data.first}
+                  title="First page"
+                >
+                  «
+                </button>
+                <button
+                  className="page-btn"
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={data.first}
+                  title="Previous page"
+                >
+                  ‹
+                </button>
+
+                {buildPageRange().map((p, idx) =>
+                  p === "…" ? (
+                    <span key={`ellipsis-${idx}`} className="page-ellipsis">
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`page-btn ${p === currentPage ? "active" : ""}`}
+                      onClick={() => setPage(p as number)}
+                    >
+                      {(p as number) + 1}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  className="page-btn"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={data.last}
+                  title="Next page"
+                >
+                  ›
+                </button>
+                <button
+                  className="page-btn"
+                  onClick={() => setPage(totalPages - 1)}
+                  disabled={data.last}
+                  title="Last page"
+                >
+                  »
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {showForm && (

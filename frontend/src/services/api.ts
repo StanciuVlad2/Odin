@@ -532,9 +532,26 @@ class ApiService {
 
   // ── Stock API ─────────────────────────────────────────────────────────────
 
-  async getStock(search?: string): Promise<StockItemResponse[]> {
+  async getStock(params: {
+    search?: string;
+    page?: number;
+    size?: number;
+  }): Promise<PageResponse<StockItemResponse>> {
+    const query = new URLSearchParams();
+    if (params.search) query.set("search", params.search);
+    query.set("page", String(params.page ?? 0));
+    query.set("size", String(params.size ?? 5));
+
+    const response = await fetch(`${API_BASE_URL}/api/stock?${query}`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch stock");
+    return response.json();
+  }
+
+  async getAllStock(search?: string): Promise<StockItemResponse[]> {
     const params = search ? `?search=${encodeURIComponent(search)}` : "";
-    const response = await fetch(`${API_BASE_URL}/api/stock${params}`, {
+    const response = await fetch(`${API_BASE_URL}/api/stock/all${params}`, {
       headers: this.getHeaders(true),
     });
     if (!response.ok) throw new Error("Failed to fetch stock");
