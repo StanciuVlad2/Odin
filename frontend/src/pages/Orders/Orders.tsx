@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import { apiService } from "../../services/api";
-import type { OrderResponse, MenuItemResponse } from "../../services/api";
+import type { OrderResponse, MenuItemResponse, FeedbackResponse } from "../../services/api";
 import "./Orders.css";
 
 type StatusFilter = "ALL" | "PENDING" | "COMPLETED" | "CANCELLED";
@@ -28,6 +28,7 @@ function Orders() {
   const [tableId, setTableId] = useState("");
   const [notes, setNotes] = useState("");
   const [creating, setCreating] = useState(false);
+  const [feedbackMap, setFeedbackMap] = useState<Record<number, FeedbackResponse>>({});
 
   const load = useCallback(async () => {
     try {
@@ -108,6 +109,28 @@ function Orders() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const loadFeedback = async (orderId: number) => {
+    if (feedbackMap[orderId] !== undefined) return;
+    try {
+      const feedback = await apiService.getFeedbackByOrderId(orderId);
+      setFeedbackMap((prev) => ({ ...prev, [orderId]: feedback }));
+    } catch {
+      // No feedback for this order — that's fine
+    }
+  };
+
+  const handleExpand = (orderId: number, status: string) => {
+    const newId = expandedId === orderId ? null : orderId;
+    setExpandedId(newId);
+    if (newId !== null && status === "COMPLETED") {
+      loadFeedback(orderId);
+    }
+  };
+
+  const formatFoodQuality = (val: string) => {
+    return val.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   const handleStatusUpdate = async (orderId: number, newStatus: string) => {
@@ -194,9 +217,7 @@ function Orders() {
               <div className="order-expand">
                 <button
                   className="btn-toggle"
-                  onClick={() =>
-                    setExpandedId(expandedId === order.id ? null : order.id)
-                  }
+                  onClick={() => handleExpand(order.id, order.status)}
                 >
                   {expandedId === order.id
                     ? "▲ Hide items"
@@ -205,26 +226,60 @@ function Orders() {
               </div>
 
               {expandedId === order.id && (
-                <table className="order-items-table">
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Qty</th>
-                      <th>Unit Price</th>
-                      <th>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {order.items.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.menuItemName}</td>
-                        <td>{item.quantity}</td>
-                        <td>€{item.unitPrice.toFixed(2)}</td>
-                        <td>€{item.subtotal.toFixed(2)}</td>
+                <>
+                  <table className="order-items-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Subtotal</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {order.items.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.menuItemName}</td>
+                          <td>{item.quantity}</td>
+                          <td>€{item.unitPrice.toFixed(2)}</td>
+                          <td>€{item.subtotal.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {order.status === "COMPLETED" && feedbackMap[order.id] && (
+                    <div className="feedback-display">
+                      <h4>Customer Feedback</h4>
+                      <div className="feedback-details">
+                        <span className="feedback-detail-label">Food Quality:</span>
+                        <span className="feedback-detail-value">
+                          {formatFoodQuality(feedbackMap[order.id].foodQualityRating)}
+                        </span>
+                        <span className="feedback-detail-label">Service Speed:</span>
+                        <span className="feedback-detail-value">
+                          {formatFoodQuality(feedbackMap[order.id].serviceSpeedRating)}
+                        </span>
+                        <span className="feedback-detail-label">Would Recommend:</span>
+                        <span className="feedback-detail-value">
+                          {feedbackMap[order.id].wouldRecommend ? "Yes" : "No"}
+                        </span>
+                        <span className="feedback-detail-label">By:</span>
+                        <span className="feedback-detail-value">
+                          {feedbackMap[order.id].userEmail}
+                        </span>
+                      </div>
+                      {feedbackMap[order.id].comment && (
+                        <p className="feedback-comment">
+                          "{feedbackMap[order.id].comment}"
+                        </p>
+                      )}
+                      <p className="feedback-meta">
+                        Submitted {new Date(feedbackMap[order.id].createdAt).toLocaleString("ro-RO")}
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
 
               {order.status === "PENDING" && (

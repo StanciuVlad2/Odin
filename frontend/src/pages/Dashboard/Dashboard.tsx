@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { apiService } from '../../services/api'
 import type { OrderResponse } from '../../services/api'
 import OrderModal from '../../components/OrderModal/OrderModal'
+import FeedbackModal from '../../components/FeedbackModal/FeedbackModal'
 import './Dashboard.css'
 
 function Dashboard() {
@@ -11,6 +12,8 @@ function Dashboard() {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [orderType, setOrderType] = useState<'now' | 'pickup'>('now')
   const [userEmail, setUserEmail] = useState<string>('')
+  const [feedbackOrderId, setFeedbackOrderId] = useState<number | null>(null)
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     loadUserInfo()
@@ -38,6 +41,18 @@ function Dashboard() {
     try {
       const data = await apiService.getMyOrders()
       setOrders(data)
+
+      const completedOrders = data.filter(o => o.status === 'COMPLETED')
+      const submitted = new Set<number>()
+      await Promise.all(
+        completedOrders.map(async (order) => {
+          try {
+            const exists = await apiService.feedbackExistsForOrder(order.id)
+            if (exists) submitted.add(order.id)
+          } catch { /* ignore */ }
+        })
+      )
+      setFeedbackSubmitted(submitted)
     } catch (err) {
       console.error('Failed to load orders:', err)
     }
@@ -126,6 +141,20 @@ function Dashboard() {
                     )}
                     <span className="order-total">${order.totalPrice.toFixed(2)}</span>
                   </div>
+                  {order.status === 'COMPLETED' && (
+                    <div className="order-feedback-action">
+                      {feedbackSubmitted.has(order.id) ? (
+                        <span className="feedback-submitted-badge">Feedback Submitted</span>
+                      ) : (
+                        <button
+                          className="btn-feedback"
+                          onClick={() => setFeedbackOrderId(order.id)}
+                        >
+                          Leave Feedback
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -140,6 +169,17 @@ function Dashboard() {
           onOrderPlaced={() => {
             setShowOrderModal(false)
             loadOrders()
+          }}
+        />
+      )}
+
+      {feedbackOrderId !== null && (
+        <FeedbackModal
+          orderId={feedbackOrderId}
+          onClose={() => setFeedbackOrderId(null)}
+          onSubmitted={() => {
+            setFeedbackSubmitted(prev => new Set(prev).add(feedbackOrderId))
+            setFeedbackOrderId(null)
           }}
         />
       )}

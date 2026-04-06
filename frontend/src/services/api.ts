@@ -216,6 +216,30 @@ export interface UpdateOrderStatusRequest {
   status: string;
 }
 
+// ── Feedback ────────────────────────────────────────────────────────────────
+
+export type FoodQualityRating = 'POOR' | 'BELOW_AVERAGE' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
+export type ServiceSpeedRating = 'SLOW' | 'ADEQUATE' | 'FAST';
+
+export interface CreateFeedbackRequest {
+  foodQualityRating: FoodQualityRating;
+  serviceSpeedRating: ServiceSpeedRating;
+  wouldRecommend: boolean;
+  comment?: string;
+}
+
+export interface FeedbackResponse {
+  id: number;
+  orderId: number;
+  userId: number;
+  userEmail: string;
+  foodQualityRating: FoodQualityRating;
+  serviceSpeedRating: ServiceSpeedRating;
+  wouldRecommend: boolean;
+  comment: string | null;
+  createdAt: string;
+}
+
 class ApiService {
   private async extractErrorMessage(response: Response): Promise<string> {
     const text = await response.text();
@@ -739,6 +763,44 @@ class ApiService {
       const message = await this.extractErrorMessage(response);
       throw new Error(message);
     }
+    return response.json();
+  }
+  // ── Feedback API ──────────────────────────────────────────────────────────
+
+  async createFeedback(orderId: number, data: CreateFeedbackRequest): Promise<FeedbackResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}`, {
+      method: "POST",
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const message = await this.extractErrorMessage(response);
+      throw new Error(message);
+    }
+    return response.json();
+  }
+
+  async getFeedbackByOrderId(orderId: number): Promise<FeedbackResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch feedback");
+    return response.json();
+  }
+
+  async feedbackExistsForOrder(orderId: number): Promise<boolean> {
+    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}/exists`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to check feedback");
+    return response.json();
+  }
+
+  async getAllFeedback(): Promise<FeedbackResponse[]> {
+    const response = await fetch(`${API_BASE_URL}/api/feedback`, {
+      headers: this.getHeaders(true),
+    });
+    if (!response.ok) throw new Error("Failed to fetch feedback");
     return response.json();
   }
 }
