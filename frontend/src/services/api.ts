@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 export interface RegisterRequest {
   email: string;
@@ -125,16 +125,16 @@ export interface UpdateUserRolesRequest {
 }
 
 export const ALL_ROLES = [
-  'ROLE_GUEST',
-  'ROLE_WAITER',
-  'ROLE_CHEF',
-  'ROLE_MANAGER',
-  'ROLE_ADMIN',
+  "ROLE_GUEST",
+  "ROLE_WAITER",
+  "ROLE_CHEF",
+  "ROLE_MANAGER",
+  "ROLE_ADMIN",
 ] as const;
 
 // ── Stock ────────────────────────────────────────────────────────────────────
 
-export type StockType = 'SOLID' | 'LIQUID' | 'PORTION';
+export type StockType = "SOLID" | "LIQUID" | "PORTION";
 
 export interface StockItemResponse {
   id: string;
@@ -198,7 +198,7 @@ export interface OrderResponse {
   id: number;
   tableId: number | null;
   userId: number | null;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
+  status: "PENDING" | "COMPLETED" | "CANCELLED";
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -218,8 +218,13 @@ export interface UpdateOrderStatusRequest {
 
 // ── Feedback ────────────────────────────────────────────────────────────────
 
-export type FoodQualityRating = 'POOR' | 'BELOW_AVERAGE' | 'AVERAGE' | 'GOOD' | 'EXCELLENT';
-export type ServiceSpeedRating = 'SLOW' | 'ADEQUATE' | 'FAST';
+export type FoodQualityRating =
+  | "POOR"
+  | "BELOW_AVERAGE"
+  | "AVERAGE"
+  | "GOOD"
+  | "EXCELLENT";
+export type ServiceSpeedRating = "SLOW" | "ADEQUATE" | "FAST";
 
 export interface CreateFeedbackRequest {
   foodQualityRating: FoodQualityRating;
@@ -359,7 +364,7 @@ class ApiService {
   async getTables(): Promise<TableResponse[]> {
     const response = await fetch(`${API_BASE_URL}/api/tables`, {
       method: "GET",
-      headers: this.getHeaders(),
+      headers: this.getHeaders(true),
     });
 
     if (!response.ok) {
@@ -425,7 +430,7 @@ class ApiService {
       `${API_BASE_URL}/api/reservations/availability?${params}`,
       {
         method: "GET",
-        headers: this.getHeaders(),
+        headers: this.getHeaders(true),
       },
     );
 
@@ -767,12 +772,18 @@ class ApiService {
   }
   // ── Feedback API ──────────────────────────────────────────────────────────
 
-  async createFeedback(orderId: number, data: CreateFeedbackRequest): Promise<FeedbackResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}`, {
-      method: "POST",
-      headers: this.getHeaders(true),
-      body: JSON.stringify(data),
-    });
+  async createFeedback(
+    orderId: number,
+    data: CreateFeedbackRequest,
+  ): Promise<FeedbackResponse> {
+    const response = await fetch(
+      `${API_BASE_URL}/api/feedback/order/${orderId}`,
+      {
+        method: "POST",
+        headers: this.getHeaders(true),
+        body: JSON.stringify(data),
+      },
+    );
     if (!response.ok) {
       const message = await this.extractErrorMessage(response);
       throw new Error(message);
@@ -781,17 +792,23 @@ class ApiService {
   }
 
   async getFeedbackByOrderId(orderId: number): Promise<FeedbackResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}`, {
-      headers: this.getHeaders(true),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/feedback/order/${orderId}`,
+      {
+        headers: this.getHeaders(true),
+      },
+    );
     if (!response.ok) throw new Error("Failed to fetch feedback");
     return response.json();
   }
 
   async feedbackExistsForOrder(orderId: number): Promise<boolean> {
-    const response = await fetch(`${API_BASE_URL}/api/feedback/order/${orderId}/exists`, {
-      headers: this.getHeaders(true),
-    });
+    const response = await fetch(
+      `${API_BASE_URL}/api/feedback/order/${orderId}/exists`,
+      {
+        headers: this.getHeaders(true),
+      },
+    );
     if (!response.ok) throw new Error("Failed to check feedback");
     return response.json();
   }
